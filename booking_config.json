@@ -1,0 +1,178 @@
+{
+  "mumu": {
+    "manager_path": "D:/software-install/MuMuPlayer/nx_main/MuMuManager.exe",
+    "adb_path": "D:/software-install/MuMuPlayer/nx_device/12.0/shell/adb.exe",
+    "preferred_vm_name": "模拟手机-2",
+    "preferred_vm_index": "2",
+    "device_serial": null
+  },
+  "app": {
+    "package": "com.supwisdom.xjtu"
+  },
+  "run": {
+    "execute": true,
+    "schedule_time": "08:40:00",
+    "wait_after_submit_seconds": 180,
+    "poll_interval_seconds": 2
+  },
+  "booking": {
+    "venue": "高等工程教育博物馆负一楼羽毛球场",
+    "target_date": "",
+    "date_offset_days": 3,
+    "priorities": [
+      {
+        "name": "首选-场地1-08:00到10:00",
+        "venue": "高等工程教育博物馆负一楼羽毛球场",
+        "court": "场地2",
+        "times": [
+          "14:30-15:30",
+          "15:30-16:30"
+        ]
+      },
+      {
+        "name": "备选-场地1-08:00到10:00",
+        "venue": "创新港一号巨构羽毛球场",
+        "court": "场地1",
+        "times": [
+          "08:00-09:00",
+          "09:00-10:00"
+        ]
+      },
+      {
+        "name": "备选-场地2-09:00到11:00",
+        "venue": "创新港一号巨构羽毛球场",
+        "court": "场地2",
+        "times": [
+          "09:00-10:00",
+          "10:00-11:00"
+        ]
+      }
+    ]
+  },
+  "workflow": {
+    "assume_unknown_page_is_service_home": true,
+    "grid_detection_min_hits": 3,
+    "clear_existing_selection": false,
+    "require_available_color_before_click": true,
+    "success_keywords": [
+      "成功",
+      "预约成功",
+      "预订成功",
+      "订单"
+    ]
+  },
+  "layout": {
+    "base_width": 900,
+    "base_height": 1600,
+    "venues": {
+      "创新港三号巨构羽毛球场": {
+        "x": 450,
+        "y": 420
+      },
+      "创新港一号巨构羽毛球场": {
+        "x": 450,
+        "y": 460
+      },
+      "创新港二号巨构羽毛球场": {
+        "x": 450,
+        "y": 600
+      },
+      "高等工程教育博物馆负一楼羽毛球场": {
+        "x": 450,
+        "y": 740
+      }
+    },
+    "notice_order_button": {
+      "x": 450,
+      "y": 1490
+    },
+    "order_button": {
+      "x": 450,
+      "y": 1545
+    },
+    "date_cells": {
+      "0": {
+        "x": 83,
+        "y": 284
+      },
+      "1": {
+        "x": 249,
+        "y": 284
+      },
+      "2": {
+        "x": 414,
+        "y": 284
+      },
+      "3": {
+        "x": 580,
+        "y": 284
+      },
+      "4": {
+        "x": 746,
+        "y": 284
+      },
+      "5": {
+        "x": 812,
+        "y": 284
+      },
+      "6": {
+        "x": 878,
+        "y": 284
+      }
+    },
+    "table": {
+      "time_label_x": 48,
+      "court_centers": {
+        "场地1": 160,
+        "场地2": 280,
+        "场地3": 400
+      },
+      "time_centers": {
+        "08:00-09:00": 435,
+        "09:00-10:00": 502,
+        "10:00-11:00": 568,
+        "11:00-12:00": 633,
+        "14:30-15:30": 699,
+        "15:30-16:30": 766,
+        "16:30-17:30": 831,
+        "17:30-18:30": 898,
+        "18:30-19:30": 964,
+        "19:30-20:30": 1029,
+        "20:30-21:30": 1095
+      }
+    }
+  },
+  "colors": {
+    "sample_radius": 5,
+    "available_green": {
+      "r_max": 170,
+      "g_min": 140,
+      "b_max": 190
+    },
+    "selected_orange": {
+      "r_min": 190,
+      "g_min": 120,
+      "g_max": 210,
+      "b_max": 170
+    },
+    "disabled_gray": {
+      "r_min": 150,
+      "r_max": 235,
+      "g_min": 150,
+      "g_max": 235,
+      "b_min": 150,
+      "b_max": 235
+    },
+    "button_blue": {
+      "r_max": 120,
+      "g_min": 120,
+      "b_min": 170
+    },
+    "button_orange": {
+      "r_min": 190,
+      "g_min": 120,
+      "g_max": 220,
+      "b_max": 180
+    }
+  }
+}
