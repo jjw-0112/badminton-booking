@@ -1,35 +1,76 @@
 {
+  "_comment": "配置说明：JSON 不能写 // 注释，所以这里用 _comment / notes 字段做说明；程序会忽略这些说明字段。时间等待单位均为秒。",
   "mumu": {
+    "_comment": "MuMu 模拟器与 ADB 连接配置。通常只需要确认 adb_path、manager_path 和 preferred_vm_index 是否符合本机安装位置。",
+    "_comment_manager_path": "MuMuManager.exe 路径，用于自动发现正在运行的模拟器实例。",
     "manager_path": "D:/software-install/MuMuPlayer/nx_main/MuMuManager.exe",
+    "_comment_adb_path": "adb.exe 路径，用于点击、截图、读取页面文字等自动化操作。",
     "adb_path": "D:/software-install/MuMuPlayer/nx_device/12.0/shell/adb.exe",
+    "_comment_preferred_vm_name": "优先连接的 MuMu 实例名称；如果名称和编号都匹配不到，会退回到第一个可用设备。",
     "preferred_vm_name": "模拟手机-2",
+    "_comment_preferred_vm_index": "优先连接的 MuMu 实例编号。",
     "preferred_vm_index": "2",
+    "_comment_device_serial": "指定 ADB 设备序列号；null 表示自动发现并连接 MuMu 设备。",
     "device_serial": null
   },
   "app": {
+    "_comment": "目标 App 包名。程序会检查当前前台窗口是否属于这个 App。",
     "package": "com.supwisdom.xjtu"
   },
   "run": {
-    "execute": true,
+    "_comment": "运行控制配置。execute 控制是否真正点击“我要下单”；schedule_time 用于定时模式。",
+    "_comment_execute": "true 表示正式下单；false 表示只跑到可下单状态，不点击“我要下单”。",
+    "execute": false,
+    "_comment_schedule_time": "定时运行的触发时间，格式 HH:MM 或 HH:MM:SS。",
     "schedule_time": "08:40:00",
+    "_comment_wait_after_submit_seconds": "点击“我要下单”后，等待验证码或结果页的最长时间。",
     "wait_after_submit_seconds": 180,
-    "poll_interval_seconds": 2
+    "_comment_poll_interval_seconds": "提交后检查页面文字的轮询间隔。数值越小检查越频繁，但会略增加 ADB 调用次数。",
+    "poll_interval_seconds": 2,
+    "waits_notes": {
+      "_comment": "下面这些说明对应 run.waits 中的同名字段；程序真正读取的是 waits 对象，waits 对象里只能放数字。",
+      "after_venue_tap_seconds": "点击场馆入口后等待场馆页或使用须知页加载。想加快页面切换可优先调小。",
+      "after_notice_order_tap_seconds": "在使用须知页点击“立即预订”后，等待进入场次选择页。",
+      "after_date_tap_seconds": "点击日期后等待日期切换和场次表刷新。",
+      "after_slot_tap_seconds": "连续点击多个时间段时，每次点击之间的间隔。",
+      "after_slot_selection_seconds": "点击完候选场次后，等待页面状态变成已选中，再截图验证。",
+      "after_clear_selection_tap_seconds": "取消已有选中场次时，每次取消点击之间的间隔。",
+      "after_clear_existing_selection_seconds": "清除已有选择后，等待页面状态稳定。",
+      "after_submit_tap_seconds": "点击“我要下单”后，等待验证码或结果页面出现。"
+    },
+    "waits": {
+      "after_venue_tap_seconds": 0.2,
+      "after_notice_order_tap_seconds": 0.4,
+      "after_date_tap_seconds": 0.0,
+      "after_slot_tap_seconds": 0.01,
+      "after_slot_selection_seconds": 0.1,
+      "after_clear_selection_tap_seconds": 0.1,
+      "after_clear_existing_selection_seconds": 0.1,
+      "after_submit_tap_seconds": 0.1
+    }
   },
   "booking": {
+    "_comment": "预订目标配置。target_date 优先级高于 date_offset_days；target_date 留空时使用 date_offset_days。",
+    "_comment_venue": "默认目标场馆。候选 priorities 里的 venue 如果不同，当前脚本会按这里的目标场馆尝试。",
     "venue": "高等工程教育博物馆负一楼羽毛球场",
+    "_comment_target_date": "指定具体日期，格式 YYYY-MM-DD。留空则使用 date_offset_days。",
     "target_date": "",
+    "_comment_date_offset_days": "相对今天的日期偏移，0=今天，1=明天，3=三天后。",
     "date_offset_days": 3,
+    "_comment_priorities": "候选场次按列表顺序尝试。每个候选最多填写两个连续时间段。",
     "priorities": [
       {
+        "_comment": "首选候选。name 只用于日志；court 和 times 决定实际点击哪个场地、哪些时间段。",
         "name": "首选-场地1-08:00到10:00",
         "venue": "高等工程教育博物馆负一楼羽毛球场",
         "court": "场地2",
         "times": [
-          "14:30-15:30",
-          "15:30-16:30"
+          "8:00-9:00",
+          "9:00-10:00"
         ]
       },
       {
+        "_comment": "备选候选。注意：如果这里的 venue 和 booking.venue 不一致，脚本会记录提示并仍按 booking.venue 尝试。",
         "name": "备选-场地1-08:00到10:00",
         "venue": "创新港一号巨构羽毛球场",
         "court": "场地1",
@@ -39,6 +80,7 @@
         ]
       },
       {
+        "_comment": "备选候选。times 必须按时间顺序填写，并且两个时间段必须连续。",
         "name": "备选-场地2-09:00到11:00",
         "venue": "创新港一号巨构羽毛球场",
         "court": "场地2",
@@ -50,10 +92,16 @@
     ]
   },
   "workflow": {
+    "_comment": "流程策略配置。这里影响页面识别、是否先清除已有选择、是否先判断颜色再点击。",
+    "_comment_assume_unknown_page_is_service_home": "true 表示页面无法可靠识别时，先假定当前在关注场地首页并继续尝试。",
     "assume_unknown_page_is_service_home": true,
+    "_comment_grid_detection_min_hits": "识别场次表格时至少需要命中的格子数量。数值越高越保守。",
     "grid_detection_min_hits": 3,
+    "_comment_clear_existing_selection": "true 表示选择新候选前，先取消页面上已有的已选场次。",
     "clear_existing_selection": false,
+    "_comment_require_available_color_before_click": "true 表示只有检测到绿色可选状态才点击场次；false 会更激进，但误点风险更高。",
     "require_available_color_before_click": true,
+    "_comment_success_keywords": "提交后如果页面文字包含这些关键词，脚本会认为可能已经成功。",
     "success_keywords": [
       "成功",
       "预约成功",
@@ -62,8 +110,12 @@
     ]
   },
   "layout": {
+    "_comment": "坐标配置。所有坐标以 base_width/base_height 对应的截图分辨率为基准，脚本会按当前设备分辨率等比例换算。",
+    "_comment_base_width": "校准坐标时使用的基准宽度。",
     "base_width": 900,
+    "_comment_base_height": "校准坐标时使用的基准高度。",
     "base_height": 1600,
+    "_comment_venues": "关注场地首页中，各场馆入口的大致点击坐标。",
     "venues": {
       "创新港三号巨构羽毛球场": {
         "x": 450,
@@ -82,14 +134,17 @@
         "y": 740
       }
     },
+    "_comment_notice_order_button": "使用须知页底部“立即预订”按钮坐标。",
     "notice_order_button": {
       "x": 450,
       "y": 1490
     },
+    "_comment_order_button": "场次页底部“我要下单”按钮坐标。",
     "order_button": {
       "x": 450,
       "y": 1545
     },
+    "_comment_date_cells": "日期栏点击坐标。键名是 date_offset_days：0=今天，1=明天，依此类推。",
     "date_cells": {
       "0": {
         "x": 83,
@@ -121,12 +176,16 @@
       }
     },
     "table": {
+      "_comment": "场次表格坐标。court_centers 只填每列中心 x；time_centers 只填每行中心 y。",
+      "_comment_time_label_x": "时间文字所在列的 x 坐标，用于辅助识别是否在场次表格页。",
       "time_label_x": 48,
+      "_comment_court_centers": "各场地列中心 x 坐标。不要在 court_centers 对象内部添加说明字段，因为程序会遍历里面的所有键。",
       "court_centers": {
         "场地1": 160,
         "场地2": 280,
         "场地3": 400
       },
+      "_comment_time_centers": "各时间段行中心 y 坐标。不要在 time_centers 对象内部添加说明字段，因为程序会遍历里面的所有键。",
       "time_centers": {
         "08:00-09:00": 435,
         "09:00-10:00": 502,
@@ -143,18 +202,23 @@
     }
   },
   "colors": {
+    "_comment": "颜色识别阈值。用于判断场次是否可选、是否已选、按钮是否可点击。不同设备主题或页面样式变化时可能需要重新校准。",
+    "_comment_sample_radius": "取色采样半径，数值越大越抗噪，但可能混入周围颜色。",
     "sample_radius": 5,
+    "_comment_available_green": "绿色可选场次的颜色规则。",
     "available_green": {
       "r_max": 170,
       "g_min": 140,
       "b_max": 190
     },
+    "_comment_selected_orange": "橙色已选场次的颜色规则。",
     "selected_orange": {
       "r_min": 190,
       "g_min": 120,
       "g_max": 210,
       "b_max": 170
     },
+    "_comment_disabled_gray": "灰色不可选场次的颜色规则。",
     "disabled_gray": {
       "r_min": 150,
       "r_max": 235,
@@ -163,11 +227,13 @@
       "b_min": 150,
       "b_max": 235
     },
+    "_comment_button_blue": "蓝色“立即预订”按钮的颜色规则。",
     "button_blue": {
       "r_max": 120,
       "g_min": 120,
       "b_min": 170
     },
+    "_comment_button_orange": "橙色“我要下单”按钮的颜色规则。",
     "button_orange": {
       "r_min": 190,
       "g_min": 120,

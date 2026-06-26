@@ -185,6 +185,18 @@ def validate_config(config: dict[str, Any]) -> None:
     except ValueError as exc:
         raise BookingError("run.schedule_time 必须是 HH:MM 或 HH:MM:SS 格式。") from exc
 
+    waits = get_nested(config, ["run", "waits"], {})
+    if waits is not None:
+        if not isinstance(waits, dict):
+            raise BookingError("run.waits 必须是对象。")
+        for name, value in waits.items():
+            try:
+                seconds = float(value)
+            except (TypeError, ValueError) as exc:
+                raise BookingError(f"run.waits.{name} 必须是数字秒数。") from exc
+            if seconds < 0:
+                raise BookingError(f"run.waits.{name} 不能小于 0。")
+
 
 def parse_clock_time(value: str) -> tuple[int, int, int]:
     parts = value.strip().split(":")
@@ -477,6 +489,21 @@ def wait_seconds(seconds: float, reason: str = "") -> None:
     time.sleep(seconds)
 
 
+def configured_wait_seconds(config: dict[str, Any], name: str, default: float) -> float:
+    value = get_nested(config, ["run", "waits", name], default)
+    try:
+        seconds = float(value)
+    except (TypeError, ValueError) as exc:
+        raise BookingError(f"run.waits.{name} 必须是数字秒数。") from exc
+    if seconds < 0:
+        raise BookingError(f"run.waits.{name} 不能小于 0。")
+    return seconds
+
+
+def wait_configured(config: dict[str, Any], name: str, default: float, reason: str = "") -> None:
+    wait_seconds(configured_wait_seconds(config, name, default), reason)
+
+
 def get_venue_point(config: dict[str, Any], venue: str) -> dict[str, Any]:
     venues = get_nested(config, ["layout", "venues"], {})
     if venue not in venues:
@@ -563,7 +590,7 @@ def open_booking_grid(device: DeviceInfo, config: dict[str, Any]) -> None:
         point = get_nested(config, ["layout", "notice_order_button"])
         x, y = scaled_point(config, device, point)
         tap(device, x, y, "立即预订")
-        wait_seconds(1.5, "等待进入场次选择页")
+        wait_configured(config, "after_notice_order_tap_seconds", 1.5, "等待进入场次选择页")
         return
 
     if page == "unknown" and get_nested(config, ["workflow", "assume_unknown_page_is_service_home"], True):
@@ -576,7 +603,7 @@ def open_booking_grid(device: DeviceInfo, config: dict[str, Any]) -> None:
         point = get_venue_point(config, venue)
         x, y = scaled_point(config, device, point)
         tap(device, x, y, venue)
-    wait_seconds(1.5, "等待场馆页面打开")
+    wait_configured(config, "after_venue_tap_seconds", 1.5, "等待场馆页面打开")
 
     page = detect_page(device, config)
     log(f"点击场馆后的页面识别结果：{page}")
@@ -584,7 +611,7 @@ def open_booking_grid(device: DeviceInfo, config: dict[str, Any]) -> None:
         point = get_nested(config, ["layout", "notice_order_button"])
         x, y = scaled_point(config, device, point)
         tap(device, x, y, "立即预订")
-        wait_seconds(1.5, "等待进入场次选择页")
+        wait_configured(config, "after_notice_order_tap_seconds", 1.5, "等待进入场次选择页")
     elif page != "booking_grid":
         raise BookingError("点击场馆后没有进入使用须知或场次页，请检查坐标并考虑运行 calibrate。")
 
@@ -602,7 +629,7 @@ def choose_date(device: DeviceInfo, config: dict[str, Any]) -> None:
     target = datetime.now().date() + timedelta(days=offset)
     target_text = target.strftime("%Y-%m-%d")
     if tap_text(device, target_text, f"选择日期 {target_text}"):
-        wait_seconds(0.8, "等待日期切换")
+        wait_configured(config, "after_date_tap_seconds", 0.8, "等待日期切换")
         return
 
     date_cells = get_nested(config, ["layout", "date_cells"], {})
@@ -614,7 +641,7 @@ def choose_date(device: DeviceInfo, config: dict[str, Any]) -> None:
     point = date_cells[str(offset)]
     x, y = scaled_point(config, device, point)
     tap(device, x, y, f"选择日期 offset={offset}")
-    wait_seconds(0.8, "等待日期切换")
+    wait_configured(config, "after_date_tap_seconds", 0.8, "等待日期切换")
 
 
 def clear_known_selections(device: DeviceInfo, config: dict[str, Any]) -> None:
@@ -630,9 +657,9 @@ def clear_known_selections(device: DeviceInfo, config: dict[str, Any]) -> None:
                 selected_points.append((x, y))
     for x, y in selected_points:
         tap(device, x, y, "清除已有选择")
-        time.sleep(0.15)
+        time.sleep(configured_wait_seconds(config, "after_clear_selection_tap_seconds", 0.15))
     if selected_points:
-        wait_seconds(0.5, "已清除页面上的已选场次")
+        wait_configured(config, "after_clear_existing_selection_seconds", 0.5, "已清除页面上的已选场次")
 
 
 def clear_candidate_points(device: DeviceInfo, config: dict[str, Any], points: list[tuple[int, int]]) -> None:
@@ -640,7 +667,7 @@ def clear_candidate_points(device: DeviceInfo, config: dict[str, Any], points: l
     for x, y in points:
         if classify_cell(image, config, x, y) == "selected":
             tap(device, x, y, "撤销本次候选选择")
-            time.sleep(0.15)
+            time.sleep(configured_wait_seconds(config, "after_clear_selection_tap_seconds", 0.15))
 
 
 def select_candidate(device: DeviceInfo, config: dict[str, Any], candidate: dict[str, Any]) -> bool:
@@ -671,9 +698,9 @@ def select_candidate(device: DeviceInfo, config: dict[str, Any], candidate: dict
 
     for (x, y), time_range, state in zip(points, times, states):
         tap(device, x, y, f"{court} {time_range}")
-        time.sleep(0.25)
+        time.sleep(configured_wait_seconds(config, "after_slot_tap_seconds", 0.25))
 
-    wait_seconds(0.6, "验证场次选择状态")
+    wait_configured(config, "after_slot_selection_seconds", 0.6, "验证场次选择状态")
     verify_image = screenshot_image(device)
     selected_count = 0
     for x, y in points:
@@ -749,7 +776,7 @@ def submit_order(device: DeviceInfo, config: dict[str, Any], execute: bool) -> N
         return
 
     tap(device, x, y, "我要下单")
-    wait_seconds(1.0, "等待验证码或结果页面")
+    wait_configured(config, "after_submit_tap_seconds", 1.0, "等待验证码或结果页面")
     notify_user_for_captcha()
     wait_after_submit(device, config)
 
